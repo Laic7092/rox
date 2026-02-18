@@ -11,8 +11,9 @@
   - `get_time` - 获取当前时间
 - 🔄 自动工具调用循环
 - 🛡️ LLM 调用重试机制
-- 💾 会话管理 - 支持多会话和持久化
+- 💾 会话管理 - 自动保存、多会话持久化
 - 📝 可配置的系统提示 - 支持 AGENT.md、SOUL.md、USER.md
+- ⌨️ reedline 输入 - 支持 UTF-8、中文输入、行编辑
 
 ## 快速开始
 
@@ -26,7 +27,9 @@ cargo build --release    # 发布构建
 ### 运行
 
 ```bash
-cargo run
+brk agent                # 进入交互模式
+brk session list         # 列出所有会话
+brk session delete <ID>  # 删除会话
 ```
 
 ### 环境变量
@@ -38,7 +41,16 @@ cargo run
 | `TAVILY_API_KEY` | - | web_search 所需 API 密钥 |
 
 ```bash
-OLLAMA_MODEL=llama2 OLLAMA_URL=http://192.168.1.100:11434 cargo run
+OLLAMA_MODEL=llama2 OLLAMA_URL=http://192.168.1.100:11434 brk agent
+```
+
+## 交互模式命令
+
+```
+/clear        - 清空当前会话历史
+/new [名]     - 创建新会话并切换
+/quit         - 退出（自动保存）
+/help         - 显示帮助
 ```
 
 ## 项目结构
@@ -47,7 +59,7 @@ OLLAMA_MODEL=llama2 OLLAMA_URL=http://192.168.1.100:11434 cargo run
 src/
 ├── main.rs              # 程序入口
 ├── lib.rs               # 库导出
-├── cli.rs               # CLI 交互
+├── cli.rs               # CLI 交互（reedline）
 ├── types/               # 类型定义
 │   ├── function.rs      # 函数相关类型
 │   └── ollama.rs        # Ollama API 类型

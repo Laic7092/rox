@@ -59,7 +59,7 @@ main (入口)
 
 ### `cli.rs` - CLI 交互
 
-用户输入循环、环境配置读取
+用户输入循环、环境配置读取、reedline 集成（UTF-8 支持）
 
 ## 工具列表
 
@@ -75,20 +75,40 @@ main (入口)
 
 ## 会话管理
 
+### 设计原则
+
+1. **自动保存** - 每次对话后自动保存，无需手动操作
+2. **无感管理** - 默认创建/恢复会话，用户无需关心
+3. **简洁命令** - 交互模式使用斜杠命令，CLI 保持语义化
+
+### 交互模式命令
+
+```
+/clear        - 清空当前会话历史
+/new [名]     - 创建新会话并切换
+/quit         - 退出（自动保存）
+/help         - 显示帮助
+```
+
+### CLI 命令
+
+```bash
+brk agent             # 进入交互模式
+brk session list      # 列出所有会话（短 ID 显示）
+brk session delete <ID>  # 删除会话（支持短 ID 前缀匹配）
+```
+
 ### SessionManager API
 
 ```rust
 let mut manager = SessionManager::new(storage_path);
 
 // 创建会话
-let session = manager.create(Some("我的会话"));
+let session = manager.create(Some("我的会话"), config);
 
 // 获取会话
 let session = manager.get("session-id");
 let session = manager.get_mut("session-id");
-
-// 切换会话
-manager.switch("session-id");
 
 // 列出会话
 for (id, metadata) in manager.list() {
@@ -241,3 +261,5 @@ cargo test
 | regex | 1.10 |
 | uuid | 1.0 (v4) |
 | dirs | 5.0 |
+| toml | 0.8 |
+| reedline | 0.38 |

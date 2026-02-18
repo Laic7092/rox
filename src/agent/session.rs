@@ -184,6 +184,11 @@ impl SessionManager {
             .and_then(|id| self.sessions.get(id))
     }
 
+    /// 获取当前会话 ID
+    pub fn current_session_id(&self) -> Option<&str> {
+        self.current_session_id.as_deref()
+    }
+
     /// 获取当前可变会话
     pub fn current_mut(&mut self) -> Option<&mut Session> {
         self.current_session_id
