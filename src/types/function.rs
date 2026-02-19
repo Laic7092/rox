@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// 函数定义
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionDefinition {
     pub name: String,
@@ -7,6 +8,7 @@ pub struct FunctionDefinition {
     pub parameters: serde_json::Value,
 }
 
+/// 函数调用
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionCall {
     pub name: String,
@@ -15,17 +17,19 @@ pub struct FunctionCall {
     pub arguments: serde_json::Value,
 }
 
+/// 工具定义
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tool {
     #[serde(rename = "type")]
-    pub tool_type: String,
+    pub r#type: String,
     pub function: FunctionDefinition,
 }
 
+/// 工具调用
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolCall {
     pub id: String,
     #[serde(rename = "type", default)]
-    pub tool_type: Option<String>,
+    pub r#type: Option<String>,
     pub function: FunctionCall,
 }

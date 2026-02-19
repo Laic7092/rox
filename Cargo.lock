@@ -60,6 +60,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "dirs",
+ "once_cell",
  "reedline",
  "regex",
  "reqwest",

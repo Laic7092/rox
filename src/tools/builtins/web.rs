@@ -1,5 +1,23 @@
 use anyhow::{Context, Result};
+use once_cell::sync::Lazy;
+use regex::Regex;
 use reqwest::Client;
+
+/// 预编译正则表达式（移除 script 标签）
+static SCRIPT_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?s)<script[^>]*>.*?</script>").unwrap());
+
+/// 预编译正则表达式（移除 style 标签）
+static STYLE_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?s)<style[^>]*>.*?</style>").unwrap());
+
+/// 预编译正则表达式（移除 HTML 标签）
+static HTML_TAG_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"<[^>]*>").unwrap());
+
+/// 预编译正则表达式（清理多余空白）
+static MULTIPLE_NEWLINES_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\n\s*\n").unwrap());
 
 pub async fn search(query: &str) -> Result<String> {
     // 使用 Tavily 搜索 API
@@ -35,7 +53,7 @@ pub async fn search(query: &str) -> Result<String> {
 
     // 提取搜索结果
     let mut output = String::new();
-    
+
     if let Some(answer) = result.get("answer").and_then(|v| v.as_str()) {
         output.push_str(&format!("摘要：{}\n\n", answer));
     }
@@ -45,7 +63,7 @@ pub async fn search(query: &str) -> Result<String> {
             let title = item.get("title").and_then(|v| v.as_str()).unwrap_or("无标题");
             let url = item.get("url").and_then(|v| v.as_str()).unwrap_or("无 URL");
             let content = item.get("content").and_then(|v| v.as_str()).unwrap_or("");
-            
+
             output.push_str(&format!("{}. {}\n   URL: {}\n   {}\n\n", i + 1, title, url, content));
         }
     }
@@ -76,40 +94,31 @@ pub async fn fetch(url: &str) -> Result<String> {
 
     // 简单清理 HTML，提取文本
     let plain_text = html_to_text(&text);
-    
+
     Ok(plain_text)
 }
 
 fn html_to_text(html: &str) -> String {
-    // 简单的 HTML 清理
     let mut result = html.to_string();
-    
+
     // 移除 script 和 style 标签
-    result = regex::Regex::new(r"(?s)<script[^>]*>.*?</script>")
-        .map(|re| re.replace_all(&result, "").to_string())
-        .unwrap_or_else(|_| result.clone());
-    
-    result = regex::Regex::new(r"(?s)<style[^>]*>.*?</style>")
-        .map(|re| re.replace_all(&result, "").to_string())
-        .unwrap_or_else(|_| result);
-    
+    result = SCRIPT_REGEX.replace_all(&result, "").to_string();
+    result = STYLE_REGEX.replace_all(&result, "").to_string();
+
     // 移除 HTML 标签
-    result = regex::Regex::new(r"<[^>]*>")
-        .map(|re| re.replace_all(&result, "").to_string())
-        .unwrap_or_else(|_| result);
-    
+    result = HTML_TAG_REGEX.replace_all(&result, "").to_string();
+
     // 解码 HTML 实体
-    result = result.replace("&nbsp;", " ")
+    result = result
+        .replace("&nbsp;", " ")
         .replace("&lt;", "<")
         .replace("&gt;", ">")
         .replace("&amp;", "&")
         .replace("&quot;", "\"")
         .replace("&#39;", "'");
-    
+
     // 清理多余空白
-    result = regex::Regex::new(r"\n\s*\n")
-        .map(|re| re.replace_all(&result, "\n\n").to_string())
-        .unwrap_or_else(|_| result);
-    
+    result = MULTIPLE_NEWLINES_REGEX.replace_all(&result, "\n\n").to_string();
+
     result.trim().to_string()
 }

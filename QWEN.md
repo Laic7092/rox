@@ -59,7 +59,7 @@ main (入口)
 
 ### `cli.rs` - CLI 交互
 
-用户输入循环、环境配置读取、reedline 集成（UTF-8 支持）
+用户输入循环、环境配置读取、reedline 集成（UTF-8 支持）、详细日志模式（`--log`）
 
 ## 工具列表
 
@@ -78,24 +78,25 @@ main (入口)
 ### 设计原则
 
 1. **自动保存** - 每次对话后自动保存，无需手动操作
-2. **无感管理** - 默认创建/恢复会话，用户无需关心
-3. **简洁命令** - 交互模式使用斜杠命令，CLI 保持语义化
+2. **自动恢复** - 启动时自动恢复最近使用的会话
+3. **无感管理** - 默认创建/恢复会话，用户无需关心
+4. **简洁命令** - 交互模式使用斜杠命令
 
 ### 交互模式命令
 
 ```
-/clear        - 清空当前会话历史
-/new [名]     - 创建新会话并切换
-/quit         - 退出（自动保存）
-/help         - 显示帮助
+/clear          - 清空当前会话历史
+/resume [ID]    - 切换会话（不带参数显示会话列表）
+/quit           - 退出（自动保存）
+/help           - 显示帮助
 ```
 
 ### CLI 命令
 
 ```bash
 brk agent             # 进入交互模式
-brk session list      # 列出所有会话（短 ID 显示）
-brk session delete <ID>  # 删除会话（支持短 ID 前缀匹配）
+brk agent --log       # 详细日志模式（显示工具调用详情）
+brk onboard           # 初始化配置
 ```
 
 ### SessionManager API
@@ -118,10 +119,13 @@ for (id, metadata) in manager.list() {
 // 保存/加载
 manager.save("session-id")?;
 manager.load("session-id")?;
-manager.load_all()?;
+manager.load_all()?;  // 加载后自动设置 current_session_id 为最近的会话
 
 // 删除会话
 manager.delete("session-id");
+
+// 切换会话
+manager.switch("session-id");
 ```
 
 ### 会话持久化
@@ -204,6 +208,9 @@ cargo build --release
 
 ```bash
 cargo run
+brk agent              # 进入交互模式
+brk agent --log        # 详细日志模式
+brk onboard            # 初始化配置
 ```
 
 ### 环境变量

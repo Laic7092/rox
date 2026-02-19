@@ -1,7 +1,6 @@
-use anyhow::Result;
+use anyhow::{Result, Context as AnyhowContext};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -10,7 +9,7 @@ use crate::types::Message;
 
 use super::context::Context as AgentContext;
 
-/// 会话数据结构（用于序列化）
+/// 会话数据（用于序列化）
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SessionData {
     id: String,
@@ -45,7 +44,7 @@ impl Session {
         // 从 workspace 加载系统提示
         let workspace_config = crate::config::WorkspaceConfig::default();
         let _ = context.load_system_prompt(&workspace_config);
-        
+
         let now = Utc::now();
         Session {
             id,
@@ -108,8 +107,10 @@ impl Session {
 
     /// 从文件加载
     pub fn load(path: &Path) -> Result<Self> {
-        let content = fs::read_to_string(path)?;
-        let data: SessionData = serde_json::from_str(&content)?;
+        let content = fs::read_to_string(path)
+            .with_context(|| format!("加载会话文件失败：{}", path.display()))?;
+        let data: SessionData = serde_json::from_str(&content)
+            .with_context(|| format!("解析会话文件失败：{}", path.display()))?;
 
         let mut context = AgentContext::new(data.system_prompt);
         for msg in data.messages {
@@ -143,6 +144,8 @@ pub struct SessionManager {
     current_session_id: Option<String>,
 }
 
+use std::collections::HashMap;
+
 impl SessionManager {
     pub fn new(storage_path: PathBuf) -> Self {
         SessionManager {
@@ -157,13 +160,14 @@ impl SessionManager {
         let id = uuid::Uuid::new_v4().to_string();
         let workspace_config = crate::config::WorkspaceConfig::default();
         let mut session = Session::new(id.clone(), config, &workspace_config.root);
-        
+
         if let Some(name) = name {
             session.rename(&name);
         }
 
         self.sessions.insert(id.clone(), session);
         self.current_session_id = Some(id.clone());
+        // 安全：刚插入的 key 一定存在
         self.sessions.get(&id).unwrap()
     }
 
@@ -226,7 +230,7 @@ impl SessionManager {
     pub fn save(&self, id: &str) -> Result<()> {
         let session = self.sessions.get(id)
             .ok_or_else(|| anyhow::anyhow!("会话不存在：{}", id))?;
-        
+
         session.save(&self.storage_path)
     }
 
@@ -252,16 +256,33 @@ impl SessionManager {
             return Ok(());
         }
 
+        let mut errors = Vec::new();
         for entry in fs::read_dir(&self.storage_path)? {
             let entry = entry?;
             let path = entry.path();
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
                 if let Some(id) = path.file_stem().and_then(|s| s.to_str()) {
-                    let _ = self.load(id);
+                    if let Err(e) = self.load(id) {
+                        errors.push(format!("加载会话 {} 失败：{}", id, e));
+                    }
                 }
             }
         }
 
-        Ok(())
+        // 加载完成后，自动选择最近更新的会话作为当前会话
+        if self.current_session_id.is_none() && !self.sessions.is_empty() {
+            let mut sessions: Vec<_> = self.sessions.iter().collect();
+            sessions.sort_by(|a, b| b.1.metadata().updated_at.cmp(&a.1.metadata().updated_at));
+
+            if let Some((id, _)) = sessions.first() {
+                self.current_session_id = Some(id.to_string());
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(anyhow::anyhow!("部分会话加载失败:\n{}", errors.join("\n")))
+        }
     }
 }

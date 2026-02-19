@@ -3,6 +3,13 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+/// 获取基础目录（~/.brk）
+fn default_base_dir() -> PathBuf {
+    dirs::home_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(".brk")
+}
+
 /// Agent 配置
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentConfig {
@@ -38,11 +45,8 @@ pub struct WorkspaceConfig {
 
 impl Default for WorkspaceConfig {
     fn default() -> Self {
-        let base = dirs::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(".brk")
-            .join("workspace");
-        
+        let base = default_base_dir().join("workspace");
+
         WorkspaceConfig {
             root: base.clone(),
             agent_file: base.join("AGENT.md"),
@@ -61,11 +65,8 @@ pub struct SessionConfig {
 
 impl Default for SessionConfig {
     fn default() -> Self {
-        let base = dirs::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(".brk")
-            .join("sessions");
-        
+        let base = default_base_dir().join("sessions");
+
         SessionConfig {
             storage_path: base,
             auto_save: true,
@@ -74,21 +75,11 @@ impl Default for SessionConfig {
 }
 
 /// 统一配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Config {
     pub agent: AgentConfig,
     pub workspace: WorkspaceConfig,
     pub session: SessionConfig,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            agent: AgentConfig::default(),
-            workspace: WorkspaceConfig::default(),
-            session: SessionConfig::default(),
-        }
-    }
 }
 
 impl Config {
@@ -118,20 +109,16 @@ impl Config {
 
     /// 从默认位置加载配置
     pub fn load_default() -> Result<Self> {
-        let path = dirs::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(".brk")
-            .join("config.toml");
-        
+        let path = default_base_dir().join("config.toml");
         Self::load(&path)
     }
-    
+
     /// 确保 workspace 目录存在
     pub fn ensure_workspace(&self) -> Result<()> {
         fs::create_dir_all(&self.workspace.root)?;
         Ok(())
     }
-    
+
     /// 确保 sessions 目录存在
     pub fn ensure_sessions(&self) -> Result<()> {
         fs::create_dir_all(&self.session.storage_path)?;
