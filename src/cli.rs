@@ -9,9 +9,9 @@ use crate::tools::ToolExecutor;
 
 /// 打印帮助信息
 fn print_help() {
-    println!("🤖 brk - 本地 AI 助手");
+    println!("🤖 rox - 本地 AI 助手");
     println!();
-    println!("用法：brk <命令>");
+    println!("用法：rox <命令>");
     println!();
     println!("命令:");
     println!("  agent           进入交互模式（默认）");
@@ -25,16 +25,13 @@ fn print_help() {
     println!("  /help         - 显示帮助");
     println!();
     println!("选项:");
-    println!("  brk agent --log     详细日志模式（显示工具调用详情）");
+    println!("  rox agent --log     详细日志模式（显示工具调用详情）");
     println!();
-    println!("示例:");
-    println!("  brk                 # 开始对话");
-    println!("  brk agent --log     # 详细日志模式");
 }
 
 /// Onboard 命令 - 初始化配置和 workspace
 fn run_onboard() -> Result<()> {
-    println!("🚀 初始化 brk 配置...\n");
+    println!("🚀 初始化 rox 配置...\n");
 
     let config = Config::default();
 
@@ -50,7 +47,7 @@ fn run_onboard() -> Result<()> {
 
     let config_path = dirs::home_dir()
         .unwrap_or_else(|| Path::new(".").to_path_buf())
-        .join(".brk")
+        .join(".rox")
         .join("config.toml");
 
     config.save(&config_path)
@@ -77,8 +74,8 @@ fn run_onboard() -> Result<()> {
     println!("🎉 初始化完成！");
     println!();
     println!("你可以:");
-    println!("  1. 编辑 ~/.brk/workspace/*.md 文件自定义你的助手");
-    println!("  2. 运行 'brk agent' 开始对话");
+    println!("  1. 编辑 ~/.rox/workspace/*.md 文件自定义你的助手");
+    println!("  2. 运行 'rox agent' 开始对话");
 
     Ok(())
 }
@@ -245,7 +242,7 @@ async fn run_agent(verbose: bool) -> Result<()> {
 
     // 打印欢迎信息
     println!("╔════════════════════════════════════════╗");
-    println!("║   🤖 brk - 本地 AI 助手                ║");
+    println!("║   🤖 rox - 本地 AI 助手                ║");
     println!("║   模型：{:<24} ║", truncate_str(&config.agent.model, 24));
     if verbose {
         println!("║   模式：详细日志                      ║");
@@ -338,7 +335,7 @@ pub async fn run_cli() -> Result<()> {
         }
         _ => {
             eprintln!("❌ 未知命令：{}", command);
-            eprintln!("运行 'brk help' 查看帮助信息");
+            eprintln!("运行 'rox help' 查看帮助信息");
             std::process::exit(1);
         }
     }

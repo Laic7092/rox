@@ -1,8 +1,8 @@
-# brk 项目文档
+# rox 项目文档
 
 ## 项目概述
 
-**brk** 是一个用 Rust 编写的 CLI Agent，通过 Ollama API 与本地 LLM 交互，采用依赖注入和模块化设计，支持内置工具调用、会话管理和可配置的系统提示。
+**rox** 是一个用 Rust 编写的 CLI Agent，通过 Ollama API 与本地 LLM 交互，采用依赖注入和模块化设计，支持内置工具调用、会话管理和可配置的系统提示。
 
 ## 模块架构
 
@@ -94,9 +94,9 @@ main (入口)
 ### CLI 命令
 
 ```bash
-brk agent             # 进入交互模式
-brk agent --log       # 详细日志模式（显示工具调用详情）
-brk onboard           # 初始化配置
+rox agent             # 进入交互模式
+rox agent --log       # 详细日志模式（显示工具调用详情）
+rox onboard           # 初始化配置
 ```
 
 ### SessionManager API
@@ -149,7 +149,7 @@ manager.switch("session-id");
 ### 配置文件位置
 
 ```
-~/.brk/
+~/.rox/
 ├── AGENT.md    # 角色定义
 ├── SOUL.md     # 对话风格
 └── USER.md     # 用户偏好
@@ -208,16 +208,16 @@ cargo build --release
 
 ```bash
 cargo run
-brk agent              # 进入交互模式
-brk agent --log        # 详细日志模式
-brk onboard            # 初始化配置
+rox agent              # 进入交互模式
+rox agent --log        # 详细日志模式
+rox onboard            # 初始化配置
 ```
 
 ### 环境变量
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `OLLAMA_MODEL` | `qwen3:4b-instruct-2507-q4_K_M` | Ollama 模型 |
+| `OLLAMA_MODEL` | `qwen3.5:9b` | Ollama 模型 |
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama API 地址 |
 | `TAVILY_API_KEY` | - | web_search 所需 API 密钥 |
 

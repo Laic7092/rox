@@ -1,4 +1,4 @@
-# brk
+# rox
 
 一个用 Rust 编写的 CLI Agent，通过 Ollama API 与本地 LLM 交互，支持内置工具调用和会话管理。
 
@@ -28,22 +28,22 @@ cargo build --release    # 发布构建
 ### 运行
 
 ```bash
-brk                      # 进入交互模式（默认）
-brk agent                # 进入交互模式
-brk agent --log          # 详细日志模式（显示工具调用参数和结果）
-brk onboard              # 初始化配置
+rox                      # 进入交互模式（默认）
+rox agent                # 进入交互模式
+rox agent --log          # 详细日志模式（显示工具调用参数和结果）
+rox onboard              # 初始化配置
 ```
 
 ### 环境变量
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `OLLAMA_MODEL` | `qwen3:4b-instruct-2507-q4_K_M` | Ollama 模型名称 |
+| `OLLAMA_MODEL` | `qwen3.5:9b` | Ollama 模型名称 |
 | `OLLAMA_URL` | `http://localhost:11434` | Ollama API 地址 |
 | `TAVILY_API_KEY` | - | web_search 所需 API 密钥 |
 
 ```bash
-OLLAMA_MODEL=llama2 OLLAMA_URL=http://192.168.1.100:11434 brk agent
+OLLAMA_MODEL=llama2 OLLAMA_URL=http://192.168.1.100:11434 rox agent
 ```
 
 ## 交互模式命令
@@ -90,16 +90,16 @@ src/
 
 ## 配置文件
 
-在 `~/.brk/` 目录下创建配置文件来自定义系统提示：
+在 `~/.rox/` 目录下创建配置文件来自定义系统提示：
 
 ```bash
-~/.brk/
+~/.rox/
 ├── AGENT.md    # 角色定义
 ├── SOUL.md     # 对话风格
 └── USER.md     # 用户偏好
 ```
 
-使用 `brk onboard` 命令可自动创建配置文件模板。
+使用 `rox onboard` 命令可自动创建配置文件模板。
 
 ## 许可证
 

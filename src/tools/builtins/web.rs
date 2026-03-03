@@ -80,7 +80,7 @@ pub async fn fetch(url: &str) -> Result<String> {
 
     let response = client
         .get(url)
-        .header("User-Agent", "Mozilla/5.0 (compatible; brk-agent/1.0)")
+        .header("User-Agent", "Mozilla/5.0 (compatible; rox-agent/1.0)")
         .send()
         .await
         .with_context(|| format!("请求 URL 失败：{}", url))?;

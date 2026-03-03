@@ -54,24 +54,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "brk"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "dirs",
- "once_cell",
- "reedline",
- "regex",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "toml",
- "uuid",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -915,6 +897,24 @@ dependencies = [
  "libc",
  "untrusted",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "rox"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "dirs",
+ "once_cell",
+ "reedline",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "toml",
+ "uuid",
 ]
 
 [[package]]

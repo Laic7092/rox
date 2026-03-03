@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use brk::run_cli;
+use rox::run_cli;
 
 #[tokio::main]
 async fn main() -> Result<()> {

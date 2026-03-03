@@ -1,14 +1,14 @@
 [package]
-name = "brk"
+name = "rox"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "brk"
+name = "rox"
 path = "src/lib.rs"
 
 [[bin]]
-name = "brk"
+name = "rox"
 path = "src/main.rs"
 
 [dependencies]

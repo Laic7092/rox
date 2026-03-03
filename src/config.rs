@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// 获取基础目录（~/.brk）
+/// 获取基础目录（~/.rox）
 fn default_base_dir() -> PathBuf {
     dirs::home_dir()
         .unwrap_or_else(|| PathBuf::from("."))
-        .join(".brk")
+        .join(".rox")
 }
 
 /// Agent 配置
@@ -24,7 +24,7 @@ impl Default for AgentConfig {
     fn default() -> Self {
         AgentConfig {
             model: std::env::var("OLLAMA_MODEL")
-                .unwrap_or_else(|_| "qwen3:4b-instruct-2507-q4_K_M".to_string()),
+                .unwrap_or_else(|_| "qwen3.5:9b".to_string()),
             base_url: std::env::var("OLLAMA_URL")
                 .unwrap_or_else(|_| "http://localhost:11434".to_string()),
             max_iterations: 10,
